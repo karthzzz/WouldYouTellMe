@@ -214,12 +214,25 @@ export default function Home() {
       <nav className="border-b border-gray-800 py-4 px-6 sticky top-0 z-50 bg-black/80 backdrop-blur animate-fade-in-up">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold tracking-wider">UnSaid</h1>
-          <button
-            onClick={() => (session ? signOut() : signIn('google'))}
-            className="px-4 py-2 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition transform hover:scale-105"
-          >
-            {session ? 'Sign Out' : 'Sign In'}
-          </button>
+          {session?.user ? (
+            <Link href="/profile" className="flex items-center gap-3 hover:opacity-80 transition cursor-pointer">
+              {session.user.image && (
+                <img
+                  src={session.user.image}
+                  alt={session.user.name || 'User'}
+                  className="w-8 h-8 rounded-full border border-blue-500"
+                />
+              )}
+              <span className="text-sm text-gray-300 max-w-[100px] truncate">Hi, {session.user.name?.split(' ')[0]}</span>
+            </Link>
+          ) : (
+            <button
+              onClick={() => signIn('google')}
+              className="px-4 py-2 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition transform hover:scale-105"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </nav>
 

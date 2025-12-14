@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, Session
 from datetime import datetime, timedelta
 import os
 from typing import Optional
@@ -112,7 +112,7 @@ def get_db():
     finally:
         db.close()
 
-def get_current_user(authorization: Optional[str] = Header(None), db: SessionLocal = Depends(get_db)):
+def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
     """Validate JWT token and return current user"""
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization header")
@@ -148,7 +148,7 @@ async def health_check():
     return {"status": "ok", "version": "0.2.0"}
 
 @app.post("/api/auth/google")
-async def google_auth(request: GoogleAuthRequest, db: SessionLocal = Depends(get_db)):
+async def google_auth(request: GoogleAuthRequest, db: Session = Depends(get_db)):
     """Authenticate with Google OAuth"""
     try:
         # Check if user exists
@@ -193,7 +193,7 @@ async def google_auth(request: GoogleAuthRequest, db: SessionLocal = Depends(get
 async def create_order(
     request: CreateOrderRequest,
     current_user: User = Depends(get_current_user),
-    db: SessionLocal = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """Create a Razorpay order for subscription"""
     try:
@@ -227,7 +227,7 @@ async def create_order(
 async def confirm_subscription(
     request: PaymentConfirmation,
     current_user: User = Depends(get_current_user),
-    db: SessionLocal = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """Confirm subscription after payment"""
     try:
@@ -271,7 +271,7 @@ async def confirm_subscription(
 async def submit_confession(
     submission: ConfessionSubmission,
     current_user: User = Depends(get_current_user),
-    db: SessionLocal = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """Submit a confession (only for subscribed users)"""
     try:
@@ -319,7 +319,7 @@ async def submit_confession(
 @app.get("/api/confessions")
 async def get_user_confessions(
     current_user: User = Depends(get_current_user),
-    db: SessionLocal = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """Get all confessions sent by current user"""
     try:
@@ -347,7 +347,7 @@ async def get_user_confessions(
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/api/webhooks/razorpay")
-async def razorpay_webhook(payload: dict, db: SessionLocal = Depends(get_db)):
+async def razorpay_webhook(payload: dict, db: Session = Depends(get_db)):
     """Handle Razorpay payment webhooks"""
     try:
         event_type = payload.get("event")
