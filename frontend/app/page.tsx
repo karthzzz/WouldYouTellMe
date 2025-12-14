@@ -376,7 +376,7 @@ export default function Home() {
             <div className="border-l-4 border-blue-500 pl-6">
               <h4 className="text-3xl font-bold mb-4">But What If You Could?</h4>
               <p className="text-gray-300 leading-relaxed mb-3">
-                Anonymous. No names. No way to trace it back to you. They'll read your truth without defensiveness. Without anger. They'll actually hear you.
+                Messages are sent from our system. Sender identity is hidden from the recipient. They'll read your truth without defensiveness. Without anger. They'll actually hear you.
               </p>
               <p className="text-sm text-gray-500">
                 And you'll finally feel the relief of saying it.
@@ -478,7 +478,7 @@ export default function Home() {
                 <span className="mr-3 text-green-400 text-xl">✓</span> Forever access
               </li>
               <li className="flex items-center">
-                <span className="mr-3 text-green-400 text-xl">✓</span> Complete anonymity
+                <span className="mr-3 text-green-400 text-xl">✓</span> Sender identity hidden
               </li>
             </ul>
             <button
@@ -508,7 +508,7 @@ export default function Home() {
                 <span className="mr-3 text-blue-400 text-xl">✓</span> Unlimited confessions
               </li>
               <li className="flex items-center">
-                <span className="mr-3 text-blue-400 text-xl">✓</span> Complete anonymity
+                <span className="mr-3 text-blue-400 text-xl">✓</span> Sender identity hidden
               </li>
               <li className="flex items-center">
                 <span className="mr-3 text-blue-400 text-xl">✓</span> Early access to features

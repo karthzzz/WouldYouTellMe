@@ -313,7 +313,7 @@ export default function ConfessionPage() {
                 {/* Info Box */}
                 <div className="p-4 bg-blue-900/20 border border-blue-700 rounded-lg">
                   <p className="text-sm text-blue-200">
-                    ✨ Your confession will be delivered immediately via {contactType === 'email' ? 'email' : 'WhatsApp'}. The recipient won't know it came from you.
+                    ✨ Your confession will be delivered immediately via {contactType === 'email' ? 'email' : 'WhatsApp'}. Messages are sent from our system. Sender identity is hidden from the recipient.
                   </p>
                 </div>
               </form>
@@ -327,7 +327,7 @@ export default function ConfessionPage() {
               <div className="border border-gray-800 rounded-lg p-6 bg-gray-950">
                 <h3 className="font-bold text-lg mb-2">Will they know it's from me?</h3>
                 <p className="text-gray-400 text-sm">
-                  No. We never include your identity. They'll just see an anonymous confession.
+                  No. Messages are sent from our system. Sender identity is hidden from the recipient.
                 </p>
               </div>
               <div className="border border-gray-800 rounded-lg p-6 bg-gray-950">

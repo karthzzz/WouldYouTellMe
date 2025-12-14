@@ -33,7 +33,7 @@ function SuccessContent() {
           )}
 
           <p className="text-gray-300 mb-8">
-            The message will be delivered shortly to the recipient via your selected method.
+            The message will be delivered shortly to the recipient via your selected method. Messages are sent from our system and sender identity is hidden from the recipient.
           </p>
 
           <Link
