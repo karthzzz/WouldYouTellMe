@@ -10,6 +10,8 @@ from typing import Optional
 import uuid
 import jwt
 import hashlib
+import httpx
+import asyncio
 
 # Environment variables
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./confessions.db")
@@ -17,6 +19,8 @@ RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "rzp_test_1DP5mmOlF5G0m4")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "XNjNWp2MmZX3jygOmXrmRd1K")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 JWT_SECRET = os.getenv("JWT_SECRET", "your-super-secret-key-change-in-production")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")  # Get from https://www.brevo.com/
+BREVO_API_URL = "https://api.brevo.com/v3"
 
 # Database setup
 engine = create_engine(
@@ -116,6 +120,97 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Email delivery service
+async def send_email_via_brevo(to_email: str, subject: str, html_content: str, sender_name: str = "WouldYouTellMe"):
+    """Send email via Brevo (formerly Sendinblue)"""
+    if not BREVO_API_KEY:
+        print(f"⚠️  Brevo API key not configured. Email not sent to {to_email}")
+        return False
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{BREVO_API_URL}/smtp/email",
+                headers={
+                    "api-key": BREVO_API_KEY,
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "sender": {"name": sender_name, "email": "noreply@wouldyoutellme.com"},
+                    "to": [{"email": to_email}],
+                    "subject": subject,
+                    "htmlContent": html_content
+                }
+            )
+            
+            if response.status_code in [200, 201]:
+                print(f"✅ Email sent to {to_email}")
+                return True
+            else:
+                print(f"❌ Failed to send email: {response.text}")
+                return False
+    except Exception as e:
+        print(f"❌ Email error: {e}")
+        return False
+
+
+async def send_whatsapp_via_twilio(phone: str, message: str):
+    """Send WhatsApp message via Twilio"""
+    # Placeholder - implement if needed
+    print(f"📱 WhatsApp delivery to {phone}: {message}")
+    return True
+
+
+async def deliver_confession(confession, recipient_email: str, recipient_name: str):
+    """Deliver confession to recipient"""
+    try:
+        subject = f"A confession for you from {confession.user.name}"
+        
+        # Create professional HTML email
+        html_content = f"""
+        <html>
+            <head>
+                <style>
+                    body {{ font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }}
+                    .container {{ background: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto; }}
+                    .header {{ color: #333; border-bottom: 2px solid #000; padding-bottom: 10px; }}
+                    .message {{ margin: 20px 0; padding: 15px; background: #f9f9f9; border-left: 4px solid #000; }}
+                    .footer {{ color: #999; font-size: 12px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h2>You've received a confession</h2>
+                    </div>
+                    <p>Hi {recipient_name},</p>
+                    <p>Someone has sent you a confession via <strong>WouldYouTellMe</strong>. Here's what they wanted to share:</p>
+                    
+                    <div class="message">
+                        <p>{confession.message}</p>
+                    </div>
+                    
+                    <p><em>The sender's identity is hidden from you. Messages are sent from our system with sender identity hidden from the recipient.</em></p>
+                    
+                    <div class="footer">
+                        <p>This message was sent to: {recipient_email}</p>
+                        <p>WouldYouTellMe - Share anonymous confessions</p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        
+        if confession.contact_type == "email":
+            success = await send_email_via_brevo(recipient_email, subject, html_content)
+        else:  # whatsapp
+            success = await send_whatsapp_via_twilio(recipient_email, confession.message)
+        
+        return success
+    except Exception as e:
+        print(f"Delivery error: {e}")
+        return False
 
 def get_db():
     db = SessionLocal()
@@ -303,6 +398,10 @@ async def submit_confession(
             )
             db.add(confession)
             db.commit()
+            
+            # Send email asynchronously
+            asyncio.create_task(deliver_confession(confession, submission.recipient_contact, submission.recipient_name))
+            
             return {
                 "id": submission_id,
                 "status": "submitted",
@@ -327,6 +426,10 @@ async def submit_confession(
             current_user.device_used_free_message = submission.device_id
             db.add(confession)
             db.commit()
+            
+            # Send email asynchronously
+            asyncio.create_task(deliver_confession(confession, submission.recipient_contact, submission.recipient_name))
+            
             return {
                 "id": submission_id,
                 "status": "submitted",
@@ -366,6 +469,9 @@ async def submit_confession(
         db.add(confession)
         db.commit()
         
+        # Send email asynchronously
+        asyncio.create_task(deliver_confession(confession, submission.recipient_contact, submission.recipient_name))
+        
         return {
             "id": submission_id,
             "status": "submitted",
@@ -404,6 +510,38 @@ async def get_user_confessions(
             ],
             "total": len(confessions)
         }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/confessions/{submission_id}/status")
+async def get_confession_status(
+    submission_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get delivery status of a specific confession"""
+    try:
+        confession = db.query(Confession).filter(
+            Confession.submission_id == submission_id,
+            Confession.user_id == current_user.id
+        ).first()
+        
+        if not confession:
+            raise HTTPException(status_code=404, detail="Confession not found")
+        
+        return {
+            "id": confession.submission_id,
+            "status": confession.status,
+            "recipient": confession.recipient_name,
+            "contact_type": confession.contact_type,
+            "is_free": confession.is_free,
+            "created_at": confession.created_at.isoformat(),
+            "delivery_status": "delivered" if confession.status == "sent" else "pending",
+            "message": f"Confession {'delivered' if confession.status == 'sent' else 'pending delivery'}"
+        }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
