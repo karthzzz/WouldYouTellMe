@@ -163,7 +163,7 @@ async def send_whatsapp_via_twilio(phone: str, message: str):
 
 
 async def deliver_confession(confession, recipient_email: str, recipient_name: str):
-    """Deliver confession to recipient"""
+    """Deliver confession to recipient and update status"""
     try:
         subject = f"A confession for you from {confession.user.name}"
         
@@ -206,6 +206,20 @@ async def deliver_confession(confession, recipient_email: str, recipient_name: s
             success = await send_email_via_brevo(recipient_email, subject, html_content)
         else:  # whatsapp
             success = await send_whatsapp_via_twilio(recipient_email, confession.message)
+        
+        # Update confession status in database after delivery
+        if success:
+            db = SessionLocal()
+            try:
+                confession_db = db.query(Confession).filter(
+                    Confession.id == confession.id
+                ).first()
+                if confession_db:
+                    confession_db.status = "sent"
+                    db.commit()
+                    print(f"✅ Confession {confession.submission_id} marked as sent")
+            finally:
+                db.close()
         
         return success
     except Exception as e:
@@ -403,7 +417,7 @@ async def submit_confession(
             asyncio.create_task(deliver_confession(confession, submission.recipient_contact, submission.recipient_name))
             
             return {
-                "id": submission_id,
+                "submission_id": submission_id,
                 "status": "submitted",
                 "message": "Confession submitted successfully (developer mode)"
             }
@@ -431,7 +445,7 @@ async def submit_confession(
             asyncio.create_task(deliver_confession(confession, submission.recipient_contact, submission.recipient_name))
             
             return {
-                "id": submission_id,
+                "submission_id": submission_id,
                 "status": "submitted",
                 "message": "Confession submitted successfully (free message used)",
                 "free_messages_remaining": 0
@@ -468,12 +482,13 @@ async def submit_confession(
         
         db.add(confession)
         db.commit()
+        db.refresh(confession)
         
         # Send email asynchronously
         asyncio.create_task(deliver_confession(confession, submission.recipient_contact, submission.recipient_name))
         
         return {
-            "id": submission_id,
+            "submission_id": submission_id,
             "status": "submitted",
             "message": "Confession submitted successfully"
         }

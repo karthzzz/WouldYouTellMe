@@ -29,8 +29,6 @@ export default function Dashboard() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/');
-    } else if (session && !session.hasSubscription) {
-      router.push('/');
     } else if (session) {
       loadConfessions();
     }
