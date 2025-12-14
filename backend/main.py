@@ -36,6 +36,9 @@ class User(Base):
     name = Column(String)
     profile_picture = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    free_messages_remaining = Column(Integer, default=1)  # 1 free message per user
+    device_used_free_message = Column(String, nullable=True)  # Device ID where free message was used
+    is_developer = Column(Boolean, default=False)  # Developer bypass for unlimited messages
     
     subscriptions = relationship("Subscription", back_populates="user")
     confessions = relationship("Confession", back_populates="user")
@@ -66,6 +69,8 @@ class Confession(Base):
     status = Column(String, default="pending")  # "pending", "sent", "delivered"
     created_at = Column(DateTime, default=datetime.utcnow)
     revealed = Column(Boolean, default=False)
+    device_id = Column(String, nullable=True)  # Device ID for free message tracking
+    is_free = Column(Boolean, default=False)  # Whether this used the free message
     
     user = relationship("User", back_populates="confessions")
 
@@ -87,6 +92,7 @@ class ConfessionSubmission(BaseModel):
     recipient_name: str = Field(..., min_length=2)
     recipient_contact: str
     contact_type: str  # "email" or "whatsapp"
+    device_id: Optional[str] = None  # For tracking free messages per device
 
 class PaymentConfirmation(BaseModel):
     payment_id: str
@@ -279,8 +285,55 @@ async def submit_confession(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Submit a confession (only for subscribed users)"""
+    """Submit a confession - free for first message, then requires subscription"""
     try:
+        # Check if user is a developer (unlimited messages)
+        if current_user.is_developer:
+            submission_id = str(uuid.uuid4())
+            confession = Confession(
+                user_id=current_user.id,
+                submission_id=submission_id,
+                message=submission.message,
+                recipient_name=submission.recipient_name,
+                recipient_contact=submission.recipient_contact,
+                contact_type=submission.contact_type,
+                status="pending",
+                device_id=submission.device_id,
+                is_free=False
+            )
+            db.add(confession)
+            db.commit()
+            return {
+                "id": submission_id,
+                "status": "submitted",
+                "message": "Confession submitted successfully (developer mode)"
+            }
+        
+        # Check if user has a free message available
+        if current_user.free_messages_remaining > 0:
+            submission_id = str(uuid.uuid4())
+            confession = Confession(
+                user_id=current_user.id,
+                submission_id=submission_id,
+                message=submission.message,
+                recipient_name=submission.recipient_name,
+                recipient_contact=submission.recipient_contact,
+                contact_type=submission.contact_type,
+                status="pending",
+                device_id=submission.device_id,
+                is_free=True
+            )
+            current_user.free_messages_remaining = 0
+            current_user.device_used_free_message = submission.device_id
+            db.add(confession)
+            db.commit()
+            return {
+                "id": submission_id,
+                "status": "submitted",
+                "message": "Confession submitted successfully (free message used)",
+                "free_messages_remaining": 0
+            }
+        
         # Check if user has active subscription
         subscription = db.query(Subscription).filter(
             Subscription.user_id == current_user.id,
@@ -288,7 +341,7 @@ async def submit_confession(
         ).first()
         
         if not subscription:
-            raise HTTPException(status_code=403, detail="No active subscription. Please purchase a plan.")
+            raise HTTPException(status_code=403, detail="No free messages or active subscription. Please purchase a plan.")
         
         # Check if premium subscription expired
         if subscription.expires_at and subscription.expires_at < datetime.utcnow():
@@ -296,7 +349,7 @@ async def submit_confession(
             db.commit()
             raise HTTPException(status_code=403, detail="Subscription expired. Please renew.")
         
-        # Create confession
+        # Create confession for subscribed user
         submission_id = str(uuid.uuid4())
         confession = Confession(
             user_id=current_user.id,
@@ -305,7 +358,9 @@ async def submit_confession(
             recipient_name=submission.recipient_name,
             recipient_contact=submission.recipient_contact,
             contact_type=submission.contact_type,
-            status="pending"
+            status="pending",
+            device_id=submission.device_id,
+            is_free=False
         )
         
         db.add(confession)
@@ -368,6 +423,46 @@ async def razorpay_webhook(payload: dict, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Webhook error: {e}")
         return {"status": "error", "message": str(e)}
+
+
+@app.post("/api/dev/enable-testing")
+async def enable_developer_mode(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Enable developer mode for unlimited free testing (ONLY for authenticated user)"""
+    # You can add additional checks here like email whitelist
+    current_user.is_developer = True
+    db.commit()
+    return {
+        "status": "success",
+        "message": f"Developer mode enabled for {current_user.email}",
+        "unlimited_messages": True
+    }
+
+
+@app.get("/api/user/status")
+async def get_user_status(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get user's subscription and free message status"""
+    subscription = db.query(Subscription).filter(
+        Subscription.user_id == current_user.id,
+        Subscription.status == "active"
+    ).first()
+    
+    return {
+        "user_id": current_user.id,
+        "email": current_user.email,
+        "name": current_user.name,
+        "is_developer": current_user.is_developer,
+        "free_messages_remaining": current_user.free_messages_remaining,
+        "has_subscription": subscription is not None,
+        "subscription_plan": subscription.plan if subscription else None,
+        "can_send_message": current_user.free_messages_remaining > 0 or current_user.is_developer or subscription is not None
+    }
+
 
 if __name__ == "__main__":
     import uvicorn

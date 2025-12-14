@@ -21,10 +21,8 @@ export default function ConfessionPage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/');
-    } else if (session && !(session as any).hasSubscription) {
-      router.push('/');
     }
-  }, [session, status, router]);
+  }, [status, router]);
 
   const validateForm = () => {
     if (!message.trim()) {
@@ -78,6 +76,13 @@ export default function ConfessionPage() {
     setLoading(true);
 
     try {
+      // Generate or get device ID
+      let deviceId = localStorage.getItem('deviceId');
+      if (!deviceId) {
+        deviceId = 'device_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('deviceId', deviceId);
+      }
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/confessions`,
         {
@@ -85,6 +90,7 @@ export default function ConfessionPage() {
           recipient_name: recipientName.trim(),
           recipient_contact: recipientContact.trim(),
           contact_type: contactType,
+          device_id: deviceId,
         },
         {
           headers: {
