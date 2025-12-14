@@ -1,17 +1,17 @@
-# Use official Python runtime as base image
+# Use official Python runtime as a parent image
 FROM python:3.11-slim
 
-# Set working directory
-WORKDIR /app
+# Set working directory in container
+WORKDIR /app/backend
 
-# Copy the entire project
-COPY . .
+# Copy backend directory
+COPY backend/ /app/backend/
 
-# Install dependencies
-RUN cd backend && pip install --no-cache-dir -r requirements.txt
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port
+# Make port 8000 available
 EXPOSE 8000
 
-# Run the app
-CMD ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Run the application
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
