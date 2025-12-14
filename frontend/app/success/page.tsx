@@ -2,8 +2,9 @@
 
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { Suspense } from 'react'
 
-export default function Success() {
+function SuccessContent() {
   const searchParams = useSearchParams()
   const submissionId = searchParams.get('submissionId')
 
@@ -44,5 +45,17 @@ export default function Success() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function Success() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </main>
+    }>
+      <SuccessContent />
+    </Suspense>
   )
 }

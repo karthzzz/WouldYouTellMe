@@ -58,7 +58,7 @@ export default function Home() {
               },
             }
           );
-          window.location.href = '/dashboard';
+          window.location.href = '/confession';
         },
         prefill: {
           email: session?.user?.email,
@@ -267,12 +267,21 @@ export default function Home() {
 
           {/* CTAs */}
           <div className="flex gap-4 pt-8 opacity-0 animate-fade-in-up delay-400" style={{ animationFillMode: 'forwards' }}>
-            <button
-              onClick={() => signIn('google')}
-              className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition transform hover:scale-105 active:scale-95"
-            >
-              Start Anonymous
-            </button>
+            {session ? (
+              <Link
+                href="/confession"
+                className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition transform hover:scale-105 active:scale-95"
+              >
+                Send a Confession
+              </Link>
+            ) : (
+              <button
+                onClick={() => signIn('google')}
+                className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition transform hover:scale-105 active:scale-95"
+              >
+                Start Anonymous
+              </button>
+            )}
             <a
               href="#realStories"
               className="px-8 py-4 border-2 border-white text-white font-bold text-lg rounded-lg hover:bg-white hover:text-black transition transform hover:scale-105"
