@@ -239,37 +239,73 @@ async def deliver_confession(confession, recipient_email: str, recipient_name: s
     logger.debug(f"   Message length: {len(confession.message)} chars")
     
     try:
-        subject = f"A confession for you from {confession.user.name}"
+        subject = f"✨ Someone shared something with you on WouldYouTellMe"
         
-        # Create professional HTML email
+        # Create professional HTML email with improved branding and emotional appeal
         html_content = f"""
         <html>
             <head>
+                <meta charset="UTF-8">
                 <style>
-                    body {{ font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }}
-                    .container {{ background: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto; }}
-                    .header {{ color: #333; border-bottom: 2px solid #000; padding-bottom: 10px; }}
-                    .message {{ margin: 20px 0; padding: 15px; background: #f9f9f9; border-left: 4px solid #000; }}
-                    .footer {{ color: #999; font-size: 12px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }}
+                    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+                    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }}
+                    .wrapper {{ background: #f8f9fa; padding: 40px 20px; }}
+                    .container {{ background: white; padding: 0; border-radius: 12px; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }}
+                    .brand-header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }}
+                    .brand-header h1 {{ font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }}
+                    .brand-header p {{ font-size: 14px; opacity: 0.9; font-weight: 500; }}
+                    .content {{ padding: 40px 30px; }}
+                    .greeting {{ font-size: 16px; color: #333; margin-bottom: 20px; line-height: 1.6; }}
+                    .greeting strong {{ color: #667eea; }}
+                    .confession-box {{ background: linear-gradient(to right, #f8f9ff, #ffffff); border: 2px solid #e8eaf6; border-left: 5px solid #667eea; padding: 25px; margin: 30px 0; border-radius: 8px; }}
+                    .confession-box p {{ font-size: 16px; color: #222; line-height: 1.8; font-style: italic; }}
+                    .highlight {{ color: #667eea; font-weight: 600; }}
+                    .divider {{ height: 1px; background: #e8eaf6; margin: 30px 0; }}
+                    .privacy-notice {{ background: #f0f4ff; padding: 15px; border-radius: 8px; font-size: 13px; color: #555; line-height: 1.6; }}
+                    .privacy-notice strong {{ color: #667eea; }}
+                    .cta-section {{ text-align: center; margin: 30px 0 0 0; }}
+                    .cta-button {{ display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px; transition: transform 0.2s; }}
+                    .cta-button:hover {{ transform: translateY(-2px); }}
+                    .footer {{ background: #f8f9fa; padding: 20px 30px; text-align: center; border-top: 1px solid #e8eaf6; }}
+                    .footer p {{ font-size: 12px; color: #999; margin: 5px 0; }}
+                    .footer-brand {{ font-size: 14px; color: #667eea; font-weight: 600; margin-top: 10px; }}
                 </style>
             </head>
             <body>
-                <div class="container">
-                    <div class="header">
-                        <h2>You've received a confession</h2>
-                    </div>
-                    <p>Hi {recipient_name},</p>
-                    <p>Someone has sent you a confession via <strong>WouldYouTellMe</strong>. Here's what they wanted to share:</p>
-                    
-                    <div class="message">
-                        <p>{confession.message}</p>
-                    </div>
-                    
-                    <p><em>The sender's identity is hidden from you. Messages are sent from our system with sender identity hidden from the recipient.</em></p>
-                    
-                    <div class="footer">
-                        <p>This message was sent to: {recipient_email}</p>
-                        <p>WouldYouTellMe - Share anonymous confessions</p>
+                <div class="wrapper">
+                    <div class="container">
+                        <div class="brand-header">
+                            <h1>💌 WouldYouTellMe</h1>
+                            <p>Someone just shared their truth with you</p>
+                        </div>
+                        
+                        <div class="content">
+                            <div class="greeting">
+                                Hi <strong>{recipient_name}</strong>,
+                                <p style="margin-top: 12px;">Someone you know trusted us with something they couldn't say out loud. They chose <span class="highlight">you</span> to receive their confession.</p>
+                            </div>
+                            
+                            <div class="confession-box">
+                                <p>"{confession.message}"</p>
+                            </div>
+                            
+                            <p style="color: #555; line-height: 1.8; margin: 20px 0;">
+                                This person took courage to share what's on their mind. Their identity is completely protected, but their words matter. What they needed you to know is above.
+                            </p>
+                            
+                            <div class="divider"></div>
+                            
+                            <div class="privacy-notice">
+                                <strong>🔒 Your Privacy Matters:</strong><br>
+                                The sender's identity is completely hidden. We don't share personal information. This message comes from our secure system designed to protect both the sender and recipient.
+                            </div>
+                            
+                            <div class="footer">
+                                <p style="margin-top: 15px;">Sent via <span class="footer-brand">WouldYouTellMe</span></p>
+                                <p>{{recipient_email}}</p>
+                                <p>Questions? Visit <strong>wouldyoutellme.com</strong></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </body>
