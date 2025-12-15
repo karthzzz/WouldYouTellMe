@@ -15,6 +15,10 @@ import asyncio
 import logging
 import traceback
 import json
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure detailed logging
 logging.basicConfig(
@@ -22,12 +26,6 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
-# Log startup info
-logger.info("🚀 Starting UnSaid Backend Server...")
-logger.debug(f"Database URL: {os.getenv('DATABASE_URL', 'sqlite:///./confessions.db')}")
-logger.debug(f"Frontend URL: {os.getenv('FRONTEND_URL', 'http://localhost:3000')}")
-logger.debug(f"Brevo API configured: {'Yes' if os.getenv('BREVO_API_KEY') else 'No'}")
 
 # Environment variables
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./confessions.db")
@@ -37,6 +35,16 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 JWT_SECRET = os.getenv("JWT_SECRET", "your-super-secret-key-change-in-production")
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")  # Get from https://www.brevo.com/
 BREVO_API_URL = "https://api.brevo.com/v3"
+
+# Log startup info
+logger.info("🚀 Starting UnSaid Backend Server...")
+logger.debug(f"Database URL: {os.getenv('DATABASE_URL', 'sqlite:///./confessions.db')}")
+logger.debug(f"Frontend URL: {os.getenv('FRONTEND_URL', 'http://localhost:3000')}")
+logger.debug(f"Brevo API configured: {'Yes' if os.getenv('BREVO_API_KEY') else 'No'}")
+if JWT_SECRET:
+    logger.debug(f"JWT Secret loaded: {JWT_SECRET[:20]}...")
+else:
+    logger.debug("JWT Secret: NOT CONFIGURED")
 
 # Database setup
 engine = create_engine(
@@ -311,6 +319,7 @@ def get_db():
 def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
     """Validate JWT token and return current user"""
     logger.debug(f"🔐 Validating token: {authorization[:50] if authorization else 'None'}...")
+    logger.debug(f"🔑 Using JWT_SECRET: {JWT_SECRET[:20]}..." if JWT_SECRET else "🔑 JWT_SECRET NOT SET")
     
     if not authorization:
         logger.error("❌ Missing authorization header")

@@ -99,6 +99,9 @@ export default function ConfessionPage() {
         }
       );
 
+      console.log('✅ Confession submitted successfully:', response.data);
+      console.log('📝 Token used:', (session as any).accessToken);
+      
       setSubmissionId(response.data.submission_id);
       setMessage('');
       setRecipientName('');
