@@ -188,7 +188,7 @@ async def send_email_via_brevo(to_email: str, subject: str, html_content: str, s
         logger.debug(f"🔗 Connecting to Brevo API: {BREVO_API_URL}/smtp/email")
         async with httpx.AsyncClient() as client:
             payload = {
-                "sender": {"name": sender_name, "email": "noreply@wouldyoutellme.com"},
+                "sender": {"name": sender_name, "email": "vksai17@gmail.com"},
                 "to": [{"email": to_email}],
                 "subject": subject,
                 "htmlContent": html_content
@@ -198,7 +198,7 @@ async def send_email_via_brevo(to_email: str, subject: str, html_content: str, s
             response = await client.post(
                 f"{BREVO_API_URL}/smtp/email",
                 headers={
-                    "api-key": BREVO_API_KEY[:20] + "...",  # Don't log full key
+                    "api-key": BREVO_API_KEY,  # Use full key
                     "Content-Type": "application/json"
                 },
                 json=payload,
