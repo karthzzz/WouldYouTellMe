@@ -272,34 +272,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-        {/* Action Buttons */}
-        <div className="grid md:grid-cols-2 gap-8">
-          <a
-            href="/#pricing"
-            className="border border-gray-800 rounded-lg p-8 bg-gray-950 hover:border-blue-500 hover:bg-gray-900 transition text-center"
-          >
-            <h3 className="text-xl font-bold mb-2">Get a Subscription</h3>
-            <p className="text-gray-400 mb-4">Unlock unlimited confessions</p>
-            <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition">
-              View Plans
-            </button>
-          </a>
-
-          <div className="border border-gray-800 rounded-lg p-8 bg-gray-950">
-            <h3 className="text-xl font-bold mb-2">Need Help?</h3>
-            <p className="text-gray-400 mb-4">Have questions about UnSaid?</p>
-            <button className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition">
-              Contact Support
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-800 py-8 px-6 bg-black text-center text-gray-500 text-sm mt-12">
-        <p>© 2025 UnSaid. Where honesty lives.</p>
-      </footer>
-    </div>
-  );
-}
