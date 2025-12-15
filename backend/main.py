@@ -12,6 +12,22 @@ import jwt
 import hashlib
 import httpx
 import asyncio
+import logging
+import traceback
+import json
+
+# Configure detailed logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Log startup info
+logger.info("🚀 Starting UnSaid Backend Server...")
+logger.debug(f"Database URL: {os.getenv('DATABASE_URL', 'sqlite:///./confessions.db')}")
+logger.debug(f"Frontend URL: {os.getenv('FRONTEND_URL', 'http://localhost:3000')}")
+logger.debug(f"Brevo API configured: {'Yes' if os.getenv('BREVO_API_KEY') else 'No'}")
 
 # Environment variables
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./confessions.db")
@@ -106,6 +122,35 @@ class PaymentConfirmation(BaseModel):
 # FastAPI app
 app = FastAPI(title="UnSaid Backend", version="0.2.0")
 
+# Add global exception handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    """Global exception handler for all unhandled errors"""
+    logger.error(f"🔴 UNHANDLED EXCEPTION: {str(exc)}\n{traceback.format_exc()}")
+    logger.error(f"   Request: {request.method} {request.url}")
+    logger.error(f"   Client: {request.client.host if request.client else 'Unknown'}")
+    
+    return {
+        "error": "Internal Server Error",
+        "detail": str(exc),
+        "type": type(exc).__name__,
+        "path": str(request.url),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+# Add request logging middleware
+@app.middleware("http")
+async def log_requests(request, call_next):
+    """Log all incoming requests"""
+    logger.debug(f"→ {request.method} {request.url.path} from {request.client.host if request.client else 'Unknown'}")
+    try:
+        response = await call_next(request)
+        logger.debug(f"← {request.method} {request.url.path} - Status: {response.status_code}")
+        return response
+    except Exception as e:
+        logger.error(f"❌ Request failed: {request.method} {request.url.path} - {str(e)}")
+        raise
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -124,34 +169,50 @@ app.add_middleware(
 # Email delivery service
 async def send_email_via_brevo(to_email: str, subject: str, html_content: str, sender_name: str = "WouldYouTellMe"):
     """Send email via Brevo (formerly Sendinblue)"""
+    logger.info(f"📧 Sending email to {to_email} - Subject: {subject}")
+    
     if not BREVO_API_KEY:
-        print(f"⚠️  Brevo API key not configured. Email not sent to {to_email}")
+        logger.error(f"❌ Brevo API key not configured. Email NOT sent to {to_email}")
+        logger.warning("⚠️  Set BREVO_API_KEY environment variable to enable email delivery")
         return False
     
     try:
+        logger.debug(f"🔗 Connecting to Brevo API: {BREVO_API_URL}/smtp/email")
         async with httpx.AsyncClient() as client:
+            payload = {
+                "sender": {"name": sender_name, "email": "noreply@wouldyoutellme.com"},
+                "to": [{"email": to_email}],
+                "subject": subject,
+                "htmlContent": html_content
+            }
+            logger.debug(f"📤 Payload: {json.dumps({'sender': payload['sender'], 'to': payload['to'], 'subject': payload['subject']})}")
+            
             response = await client.post(
                 f"{BREVO_API_URL}/smtp/email",
                 headers={
-                    "api-key": BREVO_API_KEY,
+                    "api-key": BREVO_API_KEY[:20] + "...",  # Don't log full key
                     "Content-Type": "application/json"
                 },
-                json={
-                    "sender": {"name": sender_name, "email": "noreply@wouldyoutellme.com"},
-                    "to": [{"email": to_email}],
-                    "subject": subject,
-                    "htmlContent": html_content
-                }
+                json=payload,
+                timeout=10.0
             )
             
+            logger.debug(f"📬 Brevo Response Status: {response.status_code}")
+            
             if response.status_code in [200, 201]:
-                print(f"✅ Email sent to {to_email}")
+                logger.info(f"✅ Email successfully sent to {to_email}")
                 return True
             else:
-                print(f"❌ Failed to send email: {response.text}")
+                logger.error(f"❌ Brevo API error ({response.status_code}): {response.text}")
                 return False
+    except httpx.TimeoutException:
+        logger.error(f"❌ Timeout sending email to {to_email} (request took >10s)")
+        return False
+    except httpx.ConnectError as e:
+        logger.error(f"❌ Connection error to Brevo API: {str(e)}")
+        return False
     except Exception as e:
-        print(f"❌ Email error: {e}")
+        logger.error(f"❌ Unexpected email error for {to_email}: {str(e)}\n{traceback.format_exc()}")
         return False
 
 
@@ -164,6 +225,11 @@ async def send_whatsapp_via_twilio(phone: str, message: str):
 
 async def deliver_confession(confession, recipient_email: str, recipient_name: str):
     """Deliver confession to recipient and update status"""
+    logger.info(f"📬 Starting delivery for confession {confession.submission_id}")
+    logger.debug(f"   To: {recipient_name} ({recipient_email})")
+    logger.debug(f"   Type: {confession.contact_type}")
+    logger.debug(f"   Message length: {len(confession.message)} chars")
+    
     try:
         subject = f"A confession for you from {confession.user.name}"
         
@@ -203,12 +269,15 @@ async def deliver_confession(confession, recipient_email: str, recipient_name: s
         """
         
         if confession.contact_type == "email":
+            logger.info(f"📧 Routing to email delivery")
             success = await send_email_via_brevo(recipient_email, subject, html_content)
         else:  # whatsapp
+            logger.info(f"📱 Routing to WhatsApp delivery")
             success = await send_whatsapp_via_twilio(recipient_email, confession.message)
         
         # Update confession status in database after delivery
         if success:
+            logger.info(f"✅ Delivery successful, updating database...")
             db = SessionLocal()
             try:
                 confession_db = db.query(Confession).filter(
@@ -217,13 +286,19 @@ async def deliver_confession(confession, recipient_email: str, recipient_name: s
                 if confession_db:
                     confession_db.status = "sent"
                     db.commit()
-                    print(f"✅ Confession {confession.submission_id} marked as sent")
+                    logger.info(f"✅ Confession {confession.submission_id} status updated to 'sent'")
+                else:
+                    logger.error(f"❌ Could not find confession in DB to update: {confession.submission_id}")
+            except Exception as e:
+                logger.error(f"❌ Error updating confession status: {str(e)}\n{traceback.format_exc()}")
             finally:
                 db.close()
+        else:
+            logger.warning(f"⚠️  Delivery failed for {confession.submission_id}, status remains 'pending'")
         
         return success
     except Exception as e:
-        print(f"Delivery error: {e}")
+        logger.error(f"❌ Delivery error for {confession.submission_id}: {str(e)}\n{traceback.format_exc()}")
         return False
 
 def get_db():
@@ -235,24 +310,42 @@ def get_db():
 
 def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
     """Validate JWT token and return current user"""
+    logger.debug(f"🔐 Validating token: {authorization[:50] if authorization else 'None'}...")
+    
     if not authorization:
-        raise HTTPException(status_code=401, detail="Missing authorization header")
+        logger.error("❌ Missing authorization header")
+        raise HTTPException(status_code=401, detail="Missing authorization header. Expected: Authorization: Bearer <token>")
     
     try:
         token = authorization.replace("Bearer ", "")
+        logger.debug(f"📝 Extracted token: {token[:50]}...")
+        
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        logger.debug(f"✅ Token decoded successfully: {payload}")
+        
         user_id = payload.get("user_id")
         
         if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
+            logger.error("❌ Token missing user_id claim")
+            raise HTTPException(status_code=401, detail="Invalid token: Missing user_id claim")
         
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
-            raise HTTPException(status_code=401, detail="User not found")
+            logger.error(f"❌ User not found in database: user_id={user_id}")
+            raise HTTPException(status_code=401, detail=f"User not found: user_id={user_id}")
         
+        logger.debug(f"✅ User authenticated: {user.email} (ID: {user.id})")
         return user
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        
+    except jwt.ExpiredSignatureError:
+        logger.error("❌ Token expired")
+        raise HTTPException(status_code=401, detail="Token expired. Please sign in again.")
+    except jwt.InvalidTokenError as e:
+        logger.error(f"❌ Invalid token: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
+    except Exception as e:
+        logger.error(f"❌ Unexpected error validating token: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
 
 def create_jwt_token(user_id: int):
     """Create JWT token for user"""
@@ -271,11 +364,13 @@ async def health_check():
 @app.post("/api/auth/google")
 async def google_auth(request: GoogleAuthRequest, db: Session = Depends(get_db)):
     """Authenticate with Google OAuth"""
+    logger.info(f"🔑 Google Auth Request - Email: {request.email}, Name: {request.name}")
     try:
         # Check if user exists
         user = db.query(User).filter(User.google_id == request.google_id).first()
         
         if not user:
+            logger.info(f"📝 Creating new user: {request.email}")
             # Create new user
             user = User(
                 google_id=request.google_id,
@@ -286,6 +381,9 @@ async def google_auth(request: GoogleAuthRequest, db: Session = Depends(get_db))
             db.add(user)
             db.commit()
             db.refresh(user)
+            logger.info(f"✅ User created successfully: ID={user.id}, Email={user.email}")
+        else:
+            logger.info(f"👤 User already exists: ID={user.id}, Email={user.email}")
         
         # Check if user has active subscription
         subscription = db.query(Subscription).filter(
@@ -294,9 +392,11 @@ async def google_auth(request: GoogleAuthRequest, db: Session = Depends(get_db))
         ).first()
         
         has_subscription = subscription is not None
+        logger.debug(f"💳 Subscription status: {has_subscription}")
         
         # Generate JWT token
         token = create_jwt_token(user.id)
+        logger.debug(f"🔐 JWT token generated: {token[:50]}...")
         
         return {
             "token": token,
@@ -308,7 +408,8 @@ async def google_auth(request: GoogleAuthRequest, db: Session = Depends(get_db))
             }
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"❌ Auth error: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=400, detail=f"Authentication failed: {str(e)}")
 
 @app.post("/api/orders")
 async def create_order(
@@ -395,9 +496,13 @@ async def submit_confession(
     db: Session = Depends(get_db)
 ):
     """Submit a confession - free for first message, then requires subscription"""
+    logger.info(f"📝 Confession submission from user {current_user.id} ({current_user.email})")
+    logger.debug(f"   To: {submission.recipient_name}, Type: {submission.contact_type}, Message length: {len(submission.message)}")
+    
     try:
         # Check if user is a developer (unlimited messages)
         if current_user.is_developer:
+            logger.debug(f"👨‍💻 Developer mode active for user {current_user.id}")
             submission_id = str(uuid.uuid4())
             confession = Confession(
                 user_id=current_user.id,
@@ -412,6 +517,8 @@ async def submit_confession(
             )
             db.add(confession)
             db.commit()
+            db.refresh(confession)
+            logger.info(f"✅ Confession saved (developer): ID={submission_id}")
             
             # Send email asynchronously
             asyncio.create_task(deliver_confession(confession, submission.recipient_contact, submission.recipient_name))
@@ -423,7 +530,9 @@ async def submit_confession(
             }
         
         # Check if user has a free message available
+        logger.debug(f"📊 User free messages available: {current_user.free_messages_remaining}")
         if current_user.free_messages_remaining > 0:
+            logger.info(f"🎁 Using free message for user {current_user.id}")
             submission_id = str(uuid.uuid4())
             confession = Confession(
                 user_id=current_user.id,
@@ -440,6 +549,8 @@ async def submit_confession(
             current_user.device_used_free_message = submission.device_id
             db.add(confession)
             db.commit()
+            db.refresh(confession)
+            logger.info(f"✅ Confession saved (free message): ID={submission_id}")
             
             # Send email asynchronously
             asyncio.create_task(deliver_confession(confession, submission.recipient_contact, submission.recipient_name))
@@ -452,20 +563,27 @@ async def submit_confession(
             }
         
         # Check if user has active subscription
+        logger.debug(f"💳 Checking subscription for user {current_user.id}")
         subscription = db.query(Subscription).filter(
             Subscription.user_id == current_user.id,
             Subscription.status == "active"
         ).first()
         
         if not subscription:
-            raise HTTPException(status_code=403, detail="No free messages or active subscription. Please purchase a plan.")
+            logger.warning(f"⚠️ No subscription/free messages for user {current_user.id}")
+            raise HTTPException(
+                status_code=403, 
+                detail="No free messages or active subscription. Please purchase a plan."
+            )
         
         # Check if premium subscription expired
         if subscription.expires_at and subscription.expires_at < datetime.utcnow():
+            logger.warning(f"⏰ Subscription expired for user {current_user.id}")
             subscription.status = "expired"
             db.commit()
             raise HTTPException(status_code=403, detail="Subscription expired. Please renew.")
         
+        logger.info(f"💳 Using subscription for user {current_user.id}")
         # Create confession for subscribed user
         submission_id = str(uuid.uuid4())
         confession = Confession(
@@ -483,6 +601,7 @@ async def submit_confession(
         db.add(confession)
         db.commit()
         db.refresh(confession)
+        logger.info(f"✅ Confession saved (subscription): ID={submission_id}")
         
         # Send email asynchronously
         asyncio.create_task(deliver_confession(confession, submission.recipient_contact, submission.recipient_name))
@@ -495,8 +614,9 @@ async def submit_confession(
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"❌ Confession submission error: {str(e)}\n{traceback.format_exc()}")
         db.rollback()
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=f"Submission failed: {str(e)}")
 
 @app.get("/api/confessions")
 async def get_user_confessions(
@@ -504,10 +624,14 @@ async def get_user_confessions(
     db: Session = Depends(get_db)
 ):
     """Get all confessions sent by current user"""
+    logger.info(f"📋 Fetching confessions for user {current_user.id} ({current_user.email})")
     try:
         confessions = db.query(Confession).filter(
             Confession.user_id == current_user.id
         ).order_by(Confession.created_at.desc()).all()
+        
+        logger.info(f"✅ Found {len(confessions)} confessions for user {current_user.id}")
+        logger.debug(f"   Statuses: {[c.status for c in confessions]}")
         
         return {
             "confessions": [
@@ -526,7 +650,8 @@ async def get_user_confessions(
             "total": len(confessions)
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"❌ Error fetching confessions: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=400, detail=f"Failed to fetch confessions: {str(e)}")
 
 
 @app.get("/api/confessions/{submission_id}/status")
@@ -600,21 +725,29 @@ async def get_user_status(
     db: Session = Depends(get_db)
 ):
     """Get user's subscription and free message status"""
-    subscription = db.query(Subscription).filter(
-        Subscription.user_id == current_user.id,
-        Subscription.status == "active"
-    ).first()
-    
-    return {
-        "user_id": current_user.id,
-        "email": current_user.email,
-        "name": current_user.name,
-        "is_developer": current_user.is_developer,
-        "free_messages_remaining": current_user.free_messages_remaining,
-        "has_subscription": subscription is not None,
-        "subscription_plan": subscription.plan if subscription else None,
-        "can_send_message": current_user.free_messages_remaining > 0 or current_user.is_developer or subscription is not None
-    }
+    logger.info(f"📊 Fetching user status for {current_user.email}")
+    try:
+        subscription = db.query(Subscription).filter(
+            Subscription.user_id == current_user.id,
+            Subscription.status == "active"
+        ).first()
+        
+        user_status = {
+            "user_id": current_user.id,
+            "email": current_user.email,
+            "name": current_user.name,
+            "is_developer": current_user.is_developer,
+            "free_messages_remaining": current_user.free_messages_remaining,
+            "has_subscription": subscription is not None,
+            "subscription_plan": subscription.plan if subscription else None,
+            "can_send_message": current_user.free_messages_remaining > 0 or current_user.is_developer or subscription is not None
+        }
+        
+        logger.debug(f"✅ User status: {json.dumps({k: v for k, v in user_status.items() if k != 'email'})}")
+        return user_status
+    except Exception as e:
+        logger.error(f"❌ Error fetching user status: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch user status: {str(e)}")
 
 
 if __name__ == "__main__":
