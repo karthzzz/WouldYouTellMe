@@ -135,11 +135,15 @@ export default function ProfilePage() {
               <p className="text-gray-400">Loading...</p>
             </div>
           ) : confessions.length === 0 ? (
-            <div className="border border-gray-800 rounded p-16 text-center">
-              <p className="text-gray-400 mb-4 text-lg">No confessions yet</p>
-              <Link href="/dashboard" className="text-blue-400 hover:text-blue-300 transition">
-                Start sharing →
-              </Link>
+            <div className="border border-gray-800 rounded p-16 text-center bg-gradient-to-br from-blue-900/10 to-purple-900/10">
+              <div className="mb-6">
+                <p className="text-6xl mb-4">💬</p>
+                <h3 className="text-2xl font-bold text-white mb-2">Waiting for your confessions</h3>
+                <p className="text-gray-400 mb-4">
+                  When people send you confessions, they'll appear here. They'll always be sent anonymously - you'll never know who they're from.
+                </p>
+                <p className="text-sm text-gray-500 mb-6">Share the link with friends to get started</p>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">

@@ -203,7 +203,22 @@ export default function ConfessionPage() {
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <>
+                {/* Step Indicator */}
+                <div className="mb-8 pb-8 border-b border-gray-700">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-gray-400">Your Journey</h3>
+                    <span className="text-xs text-gray-500">Step 1 of 3</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></div>
+                    <div className="flex-1 h-2 bg-gray-700 rounded-full opacity-30"></div>
+                    <div className="flex-1 h-2 bg-gray-700 rounded-full opacity-30"></div>
+                  </div>
+                  <p className="text-sm text-gray-400 mt-3">📝 Write your confession</p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Message Field */}
                 <div>
                   <label className="block text-lg font-semibold mb-3">Your Confession</label>
@@ -234,6 +249,22 @@ export default function ConfessionPage() {
                   </div>
                 </div>
 
+                {/* Step 2 Indicator */}
+                {message.length >= 10 && (
+                  <div className="my-8 pb-8 border-b border-gray-700 animate-fade-in-up">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-semibold text-gray-400">Your Journey</h3>
+                      <span className="text-xs text-gray-500">Step 2 of 3</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="flex-1 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></div>
+                      <div className="flex-1 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></div>
+                      <div className="flex-1 h-2 bg-gray-700 rounded-full opacity-30"></div>
+                    </div>
+                    <p className="text-sm text-gray-400 mt-3">🎯 Choose your recipient</p>
+                  </div>
+                )}
+
                 {/* Recipient Name */}
                 <div>
                   <label className="block text-lg font-semibold mb-3">Recipient Name</label>
@@ -252,6 +283,22 @@ export default function ConfessionPage() {
                     This is only used to identify who receives it. Can be a first name or nickname.
                   </p>
                 </div>
+
+                {/* Step 3 Indicator */}
+                {recipientName.trim() && (
+                  <div className="my-8 pb-8 border-b border-gray-700 animate-fade-in-up">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-semibold text-gray-400">Your Journey</h3>
+                      <span className="text-xs text-gray-500">Step 3 of 3</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="flex-1 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></div>
+                      <div className="flex-1 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></div>
+                      <div className="flex-1 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></div>
+                    </div>
+                    <p className="text-sm text-gray-400 mt-3">🚀 Confirm & send</p>
+                  </div>
+                )}
 
                 {/* Contact Type & Contact */}
                 <div className="grid md:grid-cols-2 gap-6">
@@ -334,8 +381,10 @@ export default function ConfessionPage() {
                   </p>
                 </div>
               </form>
+              </>
             )}
           </div>
+        </div>
 
           {/* FAQ Section */}
           <div className="mt-12">
@@ -374,7 +423,6 @@ export default function ConfessionPage() {
               <strong>Privacy & Legal Notice:</strong> Your confession is sent anonymously to the recipient. However, your identity may be disclosed to law enforcement if required by legal process or court order. By using this service, you acknowledge this limitation.
             </p>
           </div>
-        </div>
       </div>
 
       {/* Razorpay Script */}

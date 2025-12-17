@@ -305,6 +305,77 @@ export default function Home() {
         </div>
       </section>
 
+      {/* HOW IT WORKS SECTION - Simple 3-Step Process */}
+      <section className="bg-black py-32 px-6">
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-5xl font-bold mb-4 text-center animate-fade-in-up">How It Works</h3>
+          <p className="text-gray-400 text-lg mb-20 text-center animate-fade-in-up delay-100">Three simple steps to tell your truth</p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Step 1 */}
+            <div className="text-center animate-fade-in-up delay-200">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-600/40 to-cyan-600/40 border border-blue-500/50 mb-6 mx-auto">
+                <span className="text-4xl">✍️</span>
+              </div>
+              <h4 className="text-2xl font-bold text-white mb-3">Write Your Truth</h4>
+              <p className="text-gray-400">
+                Type what you've always wanted to say. Be honest, be raw, be real. No filters, no judgment.
+              </p>
+              <div className="mt-6 pt-6 border-t border-gray-800">
+                <p className="text-sm text-gray-500">Step <span className="font-bold text-white">1</span></p>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center animate-fade-in-up delay-300">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-600/40 to-pink-600/40 border border-purple-500/50 mb-6 mx-auto">
+                <span className="text-4xl">🎯</span>
+              </div>
+              <h4 className="text-2xl font-bold text-white mb-3">Choose Your Recipient</h4>
+              <p className="text-gray-400">
+                Pick who needs to hear this. A friend, family member, colleague, or anyone. It's completely up to you.
+              </p>
+              <div className="mt-6 pt-6 border-t border-gray-800">
+                <p className="text-sm text-gray-500">Step <span className="font-bold text-white">2</span></p>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center animate-fade-in-up delay-400">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-green-600/40 to-emerald-600/40 border border-green-500/50 mb-6 mx-auto">
+                <span className="text-4xl">🚀</span>
+              </div>
+              <h4 className="text-2xl font-bold text-white mb-3">Sent Anonymously</h4>
+              <p className="text-gray-400">
+                They receive your message with zero trace of who you are. Your identity stays hidden forever. Period.
+              </p>
+              <div className="mt-6 pt-6 border-t border-gray-800">
+                <p className="text-sm text-gray-500">Step <span className="font-bold text-white">3</span></p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Below Steps */}
+          <div className="text-center mt-16 animate-fade-in-up delay-500">
+            {session?.user ? (
+              <Link
+                href="/confession"
+                className="inline-block px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-lg hover:from-purple-700 hover:to-pink-700 transition transform hover:scale-105"
+              >
+                Send Your First Confession
+              </Link>
+            ) : (
+              <button
+                onClick={() => signIn('google')}
+                className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-lg hover:from-purple-700 hover:to-pink-700 transition transform hover:scale-105"
+              >
+                Get Started Now
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* REAL STORIES SECTION - Emotional Authenticity */}
       <section id="realStories" className="bg-gray-950 py-32 px-6">
         <div className="max-w-7xl mx-auto">

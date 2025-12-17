@@ -230,9 +230,15 @@ export default function Dashboard() {
                 <p className="text-gray-400">Loading...</p>
               </div>
             ) : confessions.length === 0 ? (
-              <div className="text-center py-20 border border-gray-800 rounded">
-                <p className="text-gray-400 text-lg">No confessions yet</p>
-                <p className="text-gray-500 text-sm mt-2">Start by sharing your first truth</p>
+              <div className="text-center py-20 border border-gray-800 rounded bg-gradient-to-br from-purple-900/10 to-pink-900/10 hover:border-gray-700 transition">
+                <div className="mb-6">
+                  <p className="text-6xl mb-4">📝</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">No confessions sent yet</h3>
+                  <p className="text-gray-400 mb-4">
+                    Your sent confessions will appear here. Write your first message and watch it appear!
+                  </p>
+                  <p className="text-sm text-gray-500 mb-6">💡 Tip: Scroll up to write your confession</p>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
