@@ -282,7 +282,7 @@ async def deliver_confession(confession, recipient_email: str, recipient_name: s
                         <div class="content">
                             <div class="greeting">
                                 Hi <strong>{recipient_name}</strong>,
-                                <p style="margin-top: 12px;">Someone you know trusted us with something they couldn't say out loud. They chose <span class="highlight">you</span> to receive their confession.</p>
+                                <p style="margin-top: 12px;">Someone shared their truth with you. They couldn't say it out loud, so they trusted us to deliver it. They chose <span class="highlight">you</span> to hear their confession.</p>
                             </div>
                             
                             <div class="confession-box">
@@ -290,19 +290,18 @@ async def deliver_confession(confession, recipient_email: str, recipient_name: s
                             </div>
                             
                             <p style="color: #555; line-height: 1.8; margin: 20px 0;">
-                                This person took courage to share what's on their mind. Their identity is completely protected, but their words matter. What they needed you to know is above.
+                                This person took courage to share what's on their mind. Their identity is kept confidential by our system. Their words matter. What they wanted you to know is above.
                             </p>
                             
                             <div class="divider"></div>
                             
                             <div class="privacy-notice">
                                 <strong>🔒 Your Privacy Matters:</strong><br>
-                                The sender's identity is completely hidden. We don't share personal information. This message comes from our secure system designed to protect both the sender and recipient.
+                                The sender's identity is not visible to you. We keep sender and recipient information confidential and separate. This message comes from our system designed to protect your privacy.
                             </div>
                             
                             <div class="footer">
                                 <p style="margin-top: 15px;">Sent via <span class="footer-brand">WouldYouTellMe</span></p>
-                                <p>{{recipient_email}}</p>
                                 <p>Questions? Visit <strong>wouldyoutellme.com</strong></p>
                             </div>
                         </div>

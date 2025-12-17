@@ -90,31 +90,39 @@ export default function ProfilePage() {
               <img
                 src={session.user.image}
                 alt={session.user.name || 'Profile'}
-                className="w-32 h-32 rounded-lg"
+                className="w-32 h-32 rounded-lg border-2 border-purple-500/30"
               />
             )}
             <div>
-              <h1 className="text-6xl md:text-7xl font-bold mb-4 leading-tight">
+              <h1 className="text-6xl md:text-7xl font-bold mb-4 leading-tight bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 {session.user.name}
               </h1>
               <p className="text-lg text-gray-400">{session.user.email}</p>
             </div>
           </div>
+
+          {/* Anonymity Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-900/20 border border-blue-700/50 mb-12">
+            <span className="text-blue-400">🔒</span>
+            <p className="text-sm text-blue-300">
+              Confessions you receive are sent anonymously. You won't see the sender's identity.
+            </p>
+          </div>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-6 mb-20 max-w-3xl">
-          <div className="border border-gray-800 rounded p-6">
-            <div className="text-5xl font-bold mb-2">{totalConfessions}</div>
-            <p className="text-sm text-gray-500">Total confessions</p>
+          <div className="border border-gray-800 rounded p-6 bg-gradient-to-br from-purple-900/20 to-transparent">
+            <div className="text-5xl font-bold mb-2 text-purple-400">{totalConfessions}</div>
+            <p className="text-sm text-gray-500">✉️ Total confessions</p>
           </div>
-          <div className="border border-gray-800 rounded p-6">
+          <div className="border border-gray-800 rounded p-6 bg-gradient-to-br from-green-900/20 to-transparent">
             <div className="text-5xl font-bold mb-2 text-green-400">{sentConfessions}</div>
-            <p className="text-sm text-gray-500">Sent</p>
+            <p className="text-sm text-gray-500">✅ Delivered</p>
           </div>
-          <div className="border border-gray-800 rounded p-6">
+          <div className="border border-gray-800 rounded p-6 bg-gradient-to-br from-yellow-900/20 to-transparent">
             <div className="text-5xl font-bold mb-2 text-yellow-400">{pendingConfessions}</div>
-            <p className="text-sm text-gray-500">Pending</p>
+            <p className="text-sm text-gray-500">⏳ Pending</p>
           </div>
         </div>
 

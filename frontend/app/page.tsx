@@ -252,13 +252,21 @@ export default function Home() {
             </h2>
           </div>
 
+          {/* Trust Badge - NEW */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-900/20 border border-green-700/50 opacity-0 animate-fade-in-up delay-200" style={{ animationFillMode: 'forwards' }}>
+            <span className="text-green-400">✅</span>
+            <p className="text-sm text-green-300">
+              <strong>Sent Anonymously.</strong> Recipients won't see your identity.
+            </p>
+          </div>
+
           {/* Subtext - Raw and honest */}
           <div className="space-y-6 pt-8 opacity-0 animate-fade-in-up delay-300" style={{ animationFillMode: 'forwards' }}>
             <p className="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed">
               That comment you didn't have the courage to make. The opinion you're too afraid to share. The truth about how you really feel about someone.
             </p>
             <p className="text-lg md:text-xl text-gray-400 max-w-2xl leading-relaxed italic">
-              What if you could finally say it? No names. No consequences. No looking back.
+              What if you could finally say it? Your identity stays hidden from the recipient. You can be honest without fear.
             </p>
             <p className="text-sm text-gray-500">
               You're not alone. Most people have things they wish they could say.
@@ -438,6 +446,59 @@ export default function Home() {
         </div>
       </section>
 
+      {/* WHY ANONYMOUS? - Trust & Safety */}
+      <section className="max-w-7xl mx-auto px-6 py-32">
+        <h3 className="text-5xl font-bold text-center mb-8 animate-fade-in-up">Why Anonymous Matters</h3>
+        <p className="text-center text-gray-400 text-lg mb-20 animate-fade-in-up delay-100 max-w-2xl mx-auto">
+          Anonymity isn't about hiding. It's about freedom. Freedom to be honest. Freedom to speak without fear.
+        </p>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            {
+              icon: "💭",
+              title: "They Hear Without Defensiveness",
+              description: "When people know who said something, they get defensive. Receiving anonymous confessions changes how they listen."
+            },
+            {
+              icon: "🔒",
+              title: "You Can Be Honest",
+              description: "With your identity hidden from the recipient, you can share authentically without fear. That's when real conversations happen."
+            },
+            {
+              icon: "✨",
+              title: "Your Privacy is Protected",
+              description: "Your personal data is protected. We keep sender and recipient information separate. Your privacy matters to us."
+            },
+            {
+              icon: "🤝",
+              title: "Focus on Words, Not Identity",
+              description: "Share what matters. Your identity being unknown means they can focus on your words, not who said them."
+            },
+            {
+              icon: "⚡",
+              title: "Instant Delivery",
+              description: "Your confession is delivered within minutes. Direct to email or WhatsApp. Sent anonymously."
+            },
+            {
+              icon: "🌍",
+              title: "Delivered With Care",
+              description: "We deliver your message without revealing your identity to the recipient. Your truth deserves to be heard."
+            }
+          ].map((item, i) => (
+            <div 
+              key={i}
+              className="border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition animate-fade-in-up"
+              style={{ animationDelay: `${0.1 * (i + 1)}s`, animationFillMode: 'forwards', opacity: 0 }}
+            >
+              <p className="text-4xl mb-4">{item.icon}</p>
+              <h4 className="text-xl font-bold mb-3 text-gray-100">{item.title}</h4>
+              <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* WHY THIS MATTERS */}
       <section className="bg-gray-950 py-32 px-6">
         <div className="max-w-3xl mx-auto text-center space-y-8">
@@ -553,8 +614,37 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-8 px-6 bg-black text-center text-gray-500 text-sm">
-        <p>© 2025 UnSaid. Where honesty lives.</p>
+      <footer className="border-t border-gray-800 py-12 px-6 bg-black">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8 pb-8 border-b border-gray-800">
+            <div>
+              <h4 className="font-bold text-white mb-3">About</h4>
+              <p className="text-gray-400 text-sm">Secure platform for anonymous confessions.</p>
+            </div>
+            <div>
+              <h4 className="font-bold text-white mb-3">Legal</h4>
+              <p className="text-gray-400 text-sm space-y-2">
+                <a href="/privacy" className="hover:text-gray-300 block">Privacy Policy</a>
+                <a href="/terms" className="hover:text-gray-300 block">Terms of Service</a>
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold text-white mb-3">Support</h4>
+              <p className="text-gray-400 text-sm">
+                <a href="/contact" className="hover:text-gray-300">Contact Us</a>
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold text-white mb-3">Anonymity Note</h4>
+              <p className="text-gray-400 text-xs">
+                Messages are sent anonymously to recipients. However, law enforcement may compel us to disclose sender information if required by law.
+              </p>
+            </div>
+          </div>
+          <div className="text-center text-gray-600 text-xs">
+            <p>© 2025 UnSaid. Where honesty lives.</p>
+          </div>
+        </div>
       </footer>
 
       {/* Razorpay Script */}

@@ -160,10 +160,18 @@ export default function ConfessionPage() {
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4">Tell Your Truth</h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Share what you've been wanting to say. No names. No consequences. Just honesty.
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Tell Your Truth
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-4">
+            Share what you've been wanting to say. Your identity stays hidden from the recipient. Just honest words.
           </p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-900/20 border border-blue-700/50">
+            <span className="text-blue-400">🔐</span>
+            <p className="text-sm text-blue-300">
+              <strong>Your identity is protected.</strong> The recipient won't know who sent this.
+            </p>
+          </div>
         </div>
 
         {/* Form Container */}
@@ -322,7 +330,7 @@ export default function ConfessionPage() {
                 {/* Info Box */}
                 <div className="p-4 bg-blue-900/20 border border-blue-700 rounded-lg">
                   <p className="text-sm text-blue-200">
-                    ✨ Your confession will be delivered immediately via {contactType === 'email' ? 'email' : 'WhatsApp'}. Messages are sent from our system. Sender identity is hidden from the recipient.
+                    🔒 <strong>Anonymous Delivery:</strong> Your confession will be delivered immediately via {contactType === 'email' ? 'email' : 'WhatsApp'}. Your identity is hidden from the recipient. We keep sender and recipient information separate.
                   </p>
                 </div>
               </form>
@@ -358,6 +366,13 @@ export default function ConfessionPage() {
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Legal Disclaimer */}
+          <div className="mt-12 p-4 bg-gray-900 border border-gray-800 rounded-lg">
+            <p className="text-xs text-gray-500">
+              <strong>Privacy & Legal Notice:</strong> Your confession is sent anonymously to the recipient. However, your identity may be disclosed to law enforcement if required by legal process or court order. By using this service, you acknowledge this limitation.
+            </p>
           </div>
         </div>
       </div>
