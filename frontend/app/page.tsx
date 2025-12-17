@@ -170,6 +170,104 @@ export default function Home() {
           }
         }
 
+        @keyframes shimmer {
+          0% {
+            background-position: -1000px 0;
+          }
+          100% {
+            background-position: 1000px 0;
+          }
+        }
+
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(60px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes rotateIn {
+          from {
+            opacity: 0;
+            transform: rotate(-10deg) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: rotate(0) scale(1);
+          }
+        }
+
+        @keyframes bounceIn {
+          0% {
+            opacity: 0;
+            transform: scale(0.3);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.05);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        @keyframes gradientShift {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+
+        @keyframes cardHover {
+          0% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-5px);
+          }
+          100% {
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes countUp {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: 0 0 5px rgba(168, 85, 247, 0.3), inset 0 0 5px rgba(168, 85, 247, 0.1);
+          }
+          50% {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), inset 0 0 10px rgba(168, 85, 247, 0.2);
+          }
+        }
+
         .animate-fade-in-up {
           animation: fadeInUp 0.8s ease-out forwards;
         }
@@ -194,8 +292,33 @@ export default function Home() {
           animation: pulse 2s ease-in-out infinite;
         }
 
+        .animate-slide-up {
+          animation: slideUp 0.8s ease-out forwards;
+        }
+
+        .animate-scale-in {
+          animation: scaleIn 0.6s ease-out forwards;
+        }
+
+        .animate-rotate-in {
+          animation: rotateIn 0.7s ease-out forwards;
+        }
+
+        .animate-bounce-in {
+          animation: bounceIn 0.8s ease-out forwards;
+        }
+
         .glow-effect {
           animation: glow 2s ease-in-out infinite;
+        }
+
+        .gradient-shift {
+          animation: gradientShift 6s ease infinite;
+          background-size: 200% 200%;
+        }
+
+        .pulse-glow {
+          animation: pulse-glow 2s ease-in-out infinite;
         }
 
         .delay-100 { animation-delay: 0.1s; }
@@ -204,9 +327,35 @@ export default function Home() {
         .delay-400 { animation-delay: 0.4s; }
         .delay-500 { animation-delay: 0.5s; }
         .delay-600 { animation-delay: 0.6s; }
+        .delay-700 { animation-delay: 0.7s; }
+        .delay-800 { animation-delay: 0.8s; }
 
         .text-shadow-glow {
           text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .card-hover {
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .card-hover:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(168, 85, 247, 0.15);
+        }
+
+        .button-hover {
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s ease;
+        }
+
+        .button-hover:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .button-hover:active {
+          transform: translateY(0);
         }
       `}</style>
 
@@ -274,25 +423,25 @@ export default function Home() {
           </div>
 
           {/* CTAs */}
-          <div className="flex gap-4 pt-8 opacity-0 animate-fade-in-up delay-400" style={{ animationFillMode: 'forwards' }}>
+          <div className="flex gap-4 pt-8 opacity-0 animate-fade-in-up delay-400 flex-wrap" style={{ animationFillMode: 'forwards' }}>
             {session ? (
               <Link
                 href="/confession"
-                className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition transform hover:scale-105 active:scale-95"
+                className="button-hover px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-lg hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl hover:shadow-purple-500/50 transition transform active:scale-95"
               >
                 Send a Confession
               </Link>
             ) : (
               <button
                 onClick={() => signIn('google')}
-                className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition transform hover:scale-105 active:scale-95"
+                className="button-hover px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-lg hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl hover:shadow-purple-500/50 transition transform active:scale-95"
               >
                 Start Anonymous
               </button>
             )}
             <a
               href="#realStories"
-              className="px-8 py-4 border-2 border-white text-white font-bold text-lg rounded-lg hover:bg-white hover:text-black transition transform hover:scale-105"
+              className="button-hover px-8 py-4 border-2 border-white text-white font-bold text-lg rounded-lg hover:bg-white hover:text-black hover:shadow-lg hover:shadow-white/20 transition transform active:scale-95"
             >
               See Real Stories
             </a>
@@ -313,8 +462,8 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <div className="text-center animate-fade-in-up delay-200">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-600/40 to-cyan-600/40 border border-blue-500/50 mb-6 mx-auto">
+            <div className="text-center animate-fade-in-up delay-200 card-hover">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-600/40 to-cyan-600/40 border border-blue-500/50 mb-6 mx-auto pulse-glow">
                 <span className="text-4xl">✍️</span>
               </div>
               <h4 className="text-2xl font-bold text-white mb-3">Write Your Truth</h4>
@@ -327,8 +476,8 @@ export default function Home() {
             </div>
 
             {/* Step 2 */}
-            <div className="text-center animate-fade-in-up delay-300">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-600/40 to-pink-600/40 border border-purple-500/50 mb-6 mx-auto">
+            <div className="text-center animate-fade-in-up delay-300 card-hover">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-600/40 to-pink-600/40 border border-purple-500/50 mb-6 mx-auto pulse-glow">
                 <span className="text-4xl">🎯</span>
               </div>
               <h4 className="text-2xl font-bold text-white mb-3">Choose Your Recipient</h4>
@@ -341,8 +490,8 @@ export default function Home() {
             </div>
 
             {/* Step 3 */}
-            <div className="text-center animate-fade-in-up delay-400">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-green-600/40 to-emerald-600/40 border border-green-500/50 mb-6 mx-auto">
+            <div className="text-center animate-fade-in-up delay-400 card-hover">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-green-600/40 to-emerald-600/40 border border-green-500/50 mb-6 mx-auto pulse-glow">
                 <span className="text-4xl">🚀</span>
               </div>
               <h4 className="text-2xl font-bold text-white mb-3">Sent Anonymously</h4>
@@ -384,8 +533,11 @@ export default function Home() {
 
           <div className="space-y-8">
             {/* Story 1 */}
-            <div className="border-l-4 border-blue-500 pl-8 py-6 hover:bg-gray-900 transition rounded-r-lg px-6 animate-fade-in-up delay-200">
-              <div className="text-blue-400 text-sm font-semibold mb-2">WORKPLACE</div>
+            <div className="border-l-4 border-blue-500 pl-8 py-6 hover:bg-gray-900/50 transition rounded-r-lg px-6 animate-fade-in-up delay-200 card-hover bg-gradient-to-r from-blue-900/10 to-transparent">
+              <div className="text-blue-400 text-sm font-semibold mb-2 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                WORKPLACE
+              </div>
               <p className="text-xl text-gray-200 mb-4">
                 "My boss takes credit for my work constantly. I've wanted to tell him exactly what I think for 2 years. Here I finally could."
               </p>
@@ -393,8 +545,11 @@ export default function Home() {
             </div>
 
             {/* Story 2 */}
-            <div className="border-l-4 border-purple-500 pl-8 py-6 hover:bg-gray-900 transition rounded-r-lg px-6 animate-fade-in-up delay-300">
-              <div className="text-purple-400 text-sm font-semibold mb-2">FRIENDSHIP</div>
+            <div className="border-l-4 border-purple-500 pl-8 py-6 hover:bg-gray-900/50 transition rounded-r-lg px-6 animate-fade-in-up delay-300 card-hover bg-gradient-to-r from-purple-900/10 to-transparent">
+              <div className="text-purple-400 text-sm font-semibold mb-2 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                FRIENDSHIP
+              </div>
               <p className="text-xl text-gray-200 mb-4">
                 "My best friend hurt me badly, but if I tell them, we can never be friends again. I needed to say it somewhere."
               </p>
@@ -402,8 +557,11 @@ export default function Home() {
             </div>
 
             {/* Story 3 */}
-            <div className="border-l-4 border-pink-500 pl-8 py-6 hover:bg-gray-900 transition rounded-r-lg px-6 animate-fade-in-up delay-400">
-              <div className="text-pink-400 text-sm font-semibold mb-2">FAMILY</div>
+            <div className="border-l-4 border-pink-500 pl-8 py-6 hover:bg-gray-900/50 transition rounded-r-lg px-6 animate-fade-in-up delay-400 card-hover bg-gradient-to-r from-pink-900/10 to-transparent">
+              <div className="text-pink-400 text-sm font-semibold mb-2 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-pink-400 animate-pulse"></span>
+                FAMILY
+              </div>
               <p className="text-xl text-gray-200 mb-4">
                 "I love my parents but they always criticize me. I've never been able to tell them how much it hurts."
               </p>
@@ -411,8 +569,11 @@ export default function Home() {
             </div>
 
             {/* Story 4 */}
-            <div className="border-l-4 border-green-500 pl-8 py-6 hover:bg-gray-900 transition rounded-r-lg px-6 animate-fade-in-up delay-500">
-              <div className="text-green-400 text-sm font-semibold mb-2">ROMANCE</div>
+            <div className="border-l-4 border-green-500 pl-8 py-6 hover:bg-gray-900/50 transition rounded-r-lg px-6 animate-fade-in-up delay-500 card-hover bg-gradient-to-r from-green-900/10 to-transparent">
+              <div className="text-green-400 text-sm font-semibold mb-2 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                ROMANCE
+              </div>
               <p className="text-xl text-gray-200 mb-4">
                 "I needed to tell someone how I really feel about them without it becoming a whole thing. This was perfect."
               </p>
@@ -506,10 +667,10 @@ export default function Home() {
           ].map((testimonial, i) => (
             <div
               key={i}
-              className={`border-l-4 ${testimonial.color} pl-6 py-4 animate-fade-in-up`}
+              className={`border-l-4 ${testimonial.color} pl-6 py-4 animate-fade-in-up card-hover bg-gradient-to-r from-gray-900/40 to-transparent rounded-r-lg px-4 hover:shadow-lg hover:shadow-${testimonial.color.split('-')[1]}-500/20`}
               style={{ animationDelay: `${0.1 * (i + 1)}s`, animationFillMode: 'forwards', opacity: 0 }}
             >
-              <p className="text-4xl mb-3">{testimonial.emoji}</p>
+              <p className="text-4xl mb-3 animate-bounce-in" style={{ animationDelay: `${0.1 * (i + 1) + 0.2}s` }}>{testimonial.emoji}</p>
               <p className="text-gray-300 mb-3 italic leading-relaxed">"{testimonial.text}"</p>
               <p className="font-bold text-sm text-gray-400">— {testimonial.author}</p>
             </div>
@@ -595,87 +756,87 @@ export default function Home() {
 
         <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           {/* Lifetime */}
-          <div className="border border-gray-700 rounded-lg p-8 hover:border-gray-600 transition bg-black animate-fade-in-up delay-200 transform hover:scale-105">
-            <h4 className="text-2xl font-bold mb-2">Lifetime</h4>
+          <div className="border border-gray-700 rounded-lg p-8 hover:border-gray-600 transition bg-gradient-to-br from-black to-gray-900 animate-fade-in-up delay-200 card-hover shadow-lg hover:shadow-xl hover:shadow-purple-500/20">
+            <h4 className="text-2xl font-bold mb-2 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Lifetime</h4>
             <p className="text-gray-400 mb-8">Say everything, forever</p>
             <div className="mb-8">
-              <span className="text-5xl font-bold">₹499</span>
+              <span className="text-5xl font-bold text-white">₹499</span>
               <span className="text-gray-400 ml-3 text-sm">one time</span>
             </div>
             <ul className="space-y-3 mb-8 text-gray-300">
-              <li className="flex items-center">
+              <li className="flex items-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
                 <span className="mr-3 text-green-400 text-xl">✓</span> Unlimited confessions
               </li>
-              <li className="flex items-center">
+              <li className="flex items-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
                 <span className="mr-3 text-green-400 text-xl">✓</span> Forever access
               </li>
-              <li className="flex items-center">
+              <li className="flex items-center animate-slide-up" style={{ animationDelay: '0.3s' }}>
                 <span className="mr-3 text-green-400 text-xl">✓</span> Sender identity hidden
               </li>
             </ul>
             <button
               onClick={() => handleBuyPlan('lifetime')}
               disabled={loading}
-              className="w-full px-6 py-3 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition disabled:opacity-50 transform hover:scale-105 active:scale-95"
+              className="button-hover w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:from-purple-700 hover:to-pink-700 transition disabled:opacity-50 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-purple-500/30"
             >
               {loading ? 'Processing...' : 'Choose Lifetime'}
             </button>
           </div>
 
           {/* Premium */}
-          <div className="border-2 border-blue-500 rounded-lg p-8 bg-blue-950/20 hover:border-blue-400 transition relative animate-fade-in-up delay-300 transform hover:scale-105">
+          <div className="border-2 border-blue-500 rounded-lg p-8 bg-gradient-to-br from-blue-950/40 to-black hover:border-blue-400 transition relative animate-fade-in-up delay-300 card-hover shadow-lg hover:shadow-xl hover:shadow-blue-500/30">
             <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <span className="bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1 rounded-full text-sm font-bold animate-fade-in-scale">
-                Most Choose This
+              <span className="bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1 rounded-full text-sm font-bold animate-bounce-in shadow-lg shadow-blue-500/50">
+                Popular Choice
               </span>
             </div>
-            <h4 className="text-2xl font-bold mb-2 pt-4">Premium</h4>
+            <h4 className="text-2xl font-bold mb-2 pt-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Premium</h4>
             <p className="text-gray-400 mb-8">Support the future of truth</p>
             <div className="mb-8">
-              <span className="text-5xl font-bold">₹999</span>
+              <span className="text-5xl font-bold text-white">₹999</span>
               <span className="text-gray-400 ml-3 text-sm">per year</span>
             </div>
             <ul className="space-y-3 mb-8 text-gray-300">
-              <li className="flex items-center">
+              <li className="flex items-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
                 <span className="mr-3 text-blue-400 text-xl">✓</span> Unlimited confessions
               </li>
-              <li className="flex items-center">
+              <li className="flex items-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
                 <span className="mr-3 text-blue-400 text-xl">✓</span> Sender identity hidden
               </li>
-              <li className="flex items-center">
+              <li className="flex items-center animate-slide-up" style={{ animationDelay: '0.3s' }}>
                 <span className="mr-3 text-blue-400 text-xl">✓</span> Early access to features
               </li>
-              <li className="flex items-center">
+              <li className="flex items-center animate-slide-up" style={{ animationDelay: '0.4s' }}>
                 <span className="mr-3 text-blue-400 text-xl">✓</span> Help build the future
               </li>
             </ul>
             <button
               onClick={() => handleBuyPlan('premium')}
               disabled={loading}
-              className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold rounded-lg hover:opacity-90 transition disabled:opacity-50 transform hover:scale-105 active:scale-95"
+              className="button-hover w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-lg hover:from-blue-600 hover:to-cyan-600 transition disabled:opacity-50 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-blue-500/30"
             >
               {loading ? 'Processing...' : 'Choose Premium'}
             </button>
           </div>
         </div>
 
-        <p className="text-center text-gray-500 text-sm mt-12">
+        <p className="text-center text-gray-500 text-sm mt-12 animate-fade-in-up delay-400">
           💳 Secure payment. No hidden costs. Cancel anytime (annual only).
         </p>
       </section>
 
       {/* FINAL TRUTH */}
-      <section className="bg-gray-950 py-32 px-6 text-center space-y-8">
-        <h3 className="text-5xl font-bold animate-fade-in-up">How long are you going to wait?</h3>
+      <section className="bg-gradient-to-b from-gray-950 to-black py-32 px-6 text-center space-y-8">
+        <h3 className="text-5xl md:text-6xl font-bold animate-fade-in-up leading-tight">How long are you going to wait?</h3>
         <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-100">
           That thing you've been wanting to say. That person you've been wanting to be honest with. That truth you've been carrying alone.
         </p>
-        <p className="text-lg text-gray-400 animate-fade-in-up delay-200">
+        <p className="text-lg text-gray-400 animate-fade-in-up delay-200 italic">
           Tomorrow's a good day to finally say it.
         </p>
         <button
           onClick={() => signIn('google')}
-          className="px-10 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition inline-block transform hover:scale-105 active:scale-95 animate-fade-in-up delay-300"
+          className="button-hover px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-lg hover:from-purple-700 hover:to-pink-700 transition inline-block active:scale-95 animate-fade-in-up delay-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/50"
         >
           Start Now, Pay Later
         </button>
