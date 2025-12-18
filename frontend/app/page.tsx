@@ -281,11 +281,11 @@ export default function Home() {
         }
 
         .animate-slide-in-left {
-          animation: slideInLeft 0.8s ease-out forwards;
+          animation: slideInFromLeft 0.8s ease-out forwards;
         }
 
         .animate-slide-in-right {
-          animation: slideInRight 0.8s ease-out forwards;
+          animation: slideInFromRight 0.8s ease-out forwards;
         }
 
         .animate-pulse-slow {

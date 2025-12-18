@@ -216,7 +216,7 @@ export default function Contact() {
             <div className="border border-gray-800 rounded-lg p-6">
               <h3 className="font-bold text-lg text-white mb-3">How long does delivery take?</h3>
               <p className="text-gray-400 text-sm">
-                Most confessions are delivered within minutes. Email delivery is usually instant, while WhatsApp may take a few minutes.
+                Most confessions are delivered instantly via email or within 5 minutes via WhatsApp. Delivery happens automatically through our system.
               </p>
             </div>
 

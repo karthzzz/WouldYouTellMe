@@ -399,7 +399,7 @@ export default function ConfessionPage() {
               <div className="border border-gray-800 rounded-lg p-6 bg-gray-950">
                 <h3 className="font-bold text-lg mb-2">When will they receive it?</h3>
                 <p className="text-gray-400 text-sm">
-                  Within minutes. We deliver immediately to their email or WhatsApp.
+                  Within minutes. We deliver instantly to email and WhatsApp within 5 minutes.
                 </p>
               </div>
               <div className="border border-gray-800 rounded-lg p-6 bg-gray-950">

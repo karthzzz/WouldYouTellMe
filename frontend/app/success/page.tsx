@@ -43,14 +43,14 @@ function SuccessContent() {
                 <span className="text-xl">⏱️</span>
                 <div>
                   <p className="text-white font-semibold">Delivery in progress</p>
-                  <p className="text-sm text-gray-400">Email: within 5 minutes | WhatsApp: within 1 hour</p>
+                  <p className="text-sm text-gray-400">Email: instantly | WhatsApp: within 5 minutes</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <span className="text-xl">🔒</span>
                 <div>
-                  <p className="text-white font-semibold">Sent anonymously</p>
-                  <p className="text-sm text-gray-400">They won't know who you are - ever</p>
+                  <p className="text-white font-semibold">Sent Anonymously</p>
+                  <p className="text-sm text-gray-300">The recipient won't see your identity. However, law enforcement may compel us to disclose sender information if required by legal order.</p>
                 </div>
               </div>
               <div className="flex gap-3">
